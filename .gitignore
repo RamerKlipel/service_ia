@@ -1,0 +1,5 @@
+LICENSE
+vault-embeddings.json
+vendor/
+.bak
+.env
