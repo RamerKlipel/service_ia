@@ -90,3 +90,10 @@ function formatDateHourDB(string $dateHour): null|string
     $dateFormated = formatDateDB($date);
     return "$dateFormated $hour";
 }
+
+function jsonResponse(array $arrData, int $idStatusCode = 200): void
+{
+    http_response_code($idStatusCode);
+    header('Content-Type: application/json');
+    echo json_encode($arrData);
+}
