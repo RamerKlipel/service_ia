@@ -23,17 +23,20 @@ class Router
         $handler = ($this->router[$method][$path] ?? null);
 
         if ($handler == null) {
-            http_response_code(404);
-            header('Content-type: apllication/json');
-            echo json_encode(["success" => false, "error" => "Rota não encontrada"]);
+            jsonResponse(["success" => false, "error" => "Rota não encontrada"], 404);
             return;
         }
 
         [$class, $method] = $handler;
-        $controller = new $class;
 
-        if (!empty($method) && method_exists($controller, $method)) {
-            call_user_func([$controller, $method]);
+        try {
+            $controller = new $class;
+
+            if (!empty($method) && method_exists($controller, $method)) {
+                call_user_func([$controller, $method]);
+            }
+        } catch (\Exception $e) {
+            jsonResponse(['success' => false, 'error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 }

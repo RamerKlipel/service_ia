@@ -2,33 +2,94 @@
 
 namespace App\Services;
 
+use LLPhant\Embeddings\EmbeddingGenerator\Ollama\OllamaEmbeddingGenerator;
+use LLPhant\Embeddings\VectorStores\FileSystem\FileSystemVectorStore;
+use LLPhant\OllamaConfig;
+use LLPhant\Chat\OllamaChat;
+use LLPhant\Query\SemanticSearch\QuestionAnswering;
+use GuzzleHttp\Client;
+
 class OllamaChatService
 {
-    public function streamResponse(string $message, array $history): void
+    public ?Client $client = null;
+
+    public function verifyModelIsActive(string $baseUrl, string $model): bool
     {
-        // TODO: montar o LLPhant OllamaChatModel aqui
-        // e iterar a resposta em chunks, dando echo + flush a cada pedaço
+        $arrModelsAvailable = [];
+        $baseUrl = trim($baseUrl, "/")."/tags/";
 
-        while (ob_get_level() > 0) {
-            ob_end_flush();
+        $this->createClientGuzzle();
+
+        $objResponse = $this->client->get($baseUrl);
+
+        $httpsResponseCode = $objResponse->getStatusCode();
+        $jsonModels = $objResponse->getBody()->getContents();
+
+        if ($jsonModels === false || $httpsResponseCode != 200) {
+            return false;
         }
 
-        ob_implicit_flush(true);
+        $arrModels = json_decode($jsonModels, true);
 
-        foreach ($this->fakeStreamChunks($message) as $chunk) {
-            echo "data: " . json_encode(['chunk' => $chunk]) . "\n\n";
-            flush();
+        if (!isset($arrModels["models"]) || !is_array($arrModels["models"])) {
+            return false;
         }
 
-        echo "data: [DONE]\n\n";
-        flush();
+        foreach ($arrModels["models"] as $arrModel) {
+            $arrModelsAvailable[] = ($arrModel["name"] ?? null);
+        }
+
+        $arrModelsAvailable = array_filter($arrModelsAvailable);
+
+        if (empty($arrModelsAvailable)) {
+            return false;
+        }
+
+        $isModelAvailable = false;
+        foreach ($arrModelsAvailable as $modelAvailable) {
+            if (str_starts_with($modelAvailable, $model)) {
+                $isModelAvailable = true;
+            }
+        }
+
+        return $isModelAvailable;
     }
 
-    private function fakeStreamChunks(string $message): \Generator
+    public function createChatOllama(string $urlOllama): QuestionAnswering
     {
-        foreach (str_split("Resposta de teste pra: $message", 5) as $piece) {
-            usleep(100000);
-            yield $piece;
+        $embeddingConfig = new OllamaConfig();
+        $embeddingConfig->url = $urlOllama;
+        $embeddingConfig->model = 'nomic-embed-text';
+
+        $chatConfig = new OllamaConfig();
+        $chatConfig->url = $urlOllama;
+        $chatConfig->model = 'qwen2.5-coder:3b';
+        // $chatConfig->model = 'qwen2.5-coder:7b';
+        $chatConfig->formatJson = true;
+        $chatConfig->modelOptions = ["timeout" => 120];
+
+        $vectorStore = new FileSystemVectorStore('vault-embeddings.json');
+
+        $embeddingGenerator = new OllamaEmbeddingGenerator($embeddingConfig);
+
+        $chat = new OllamaChat($chatConfig);
+
+        $chat->setSystemMessage(
+            "Você é um assistente especializado no framework PHP interno da empresa.
+            Responda apenas com base na documentação fornecida.
+            Se a resposta não estiver na documentação, diga explicitamente que não sabe.
+            Responda sempre em português."
+        );
+
+        return new QuestionAnswering($vectorStore, $embeddingGenerator, $chat);
+    }
+
+    public function createClientGuzzle(array $arrParams = []): Client
+    {
+        if (empty($this->client)) {
+            $this->client = new Client($arrParams);
         }
+
+        return $this->client;
     }
 }

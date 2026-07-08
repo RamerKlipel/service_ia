@@ -11,7 +11,8 @@
         "theodo-group/llphant": "^0.7.8",
         "symfony/http-client": "7.2",
         "nyholm/psr7": "^1.8",
-        "nikic/php-parser": "^5.7"
+        "nikic/php-parser": "^5.7",
+        "guzzlehttp/guzzle": "^7.13"
     },
     "config": {
         "allow-plugins": {
