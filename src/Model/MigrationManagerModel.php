@@ -3,8 +3,9 @@
 namespace App\Model;
 
 use App\Database;
+use App\Model;
 
-class MigrationManagerModel
+class MigrationManagerModel extends Model
 {
     public function getMigrationsExecuted(): array
     {
@@ -37,20 +38,5 @@ class MigrationManagerModel
     public function insertMigration(string $nmMigration)
     {
         Database::insert('migration', ['NMMIGRATION' => ':NMMIGRATION'], [":NMMIGRATION" => $nmMigration]);
-    }
-
-    public function transactionStart()
-    {
-        Database::transactionStart();
-    }
-
-    public function transactionCommit()
-    {
-        Database::transactionCommit();
-    }
-
-    public function transactionRollback()
-    {
-        Database::transactionRollback();
     }
 }

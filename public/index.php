@@ -5,6 +5,7 @@ require_once __DIR__.'/../src/utils/functions.php';
 
 $router = new App\Router;
 $router->post('/api/chat', [App\ChatController::class, 'askChat']);
+$router->post('/api/history', [App\ChatController::class, 'getHistory']);
 $router->get('/api/health', [App\ChatController::class, 'health']);
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

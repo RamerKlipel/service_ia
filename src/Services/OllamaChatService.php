@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Model\OllamaChatServiceModel;
+
+use LLPhant\Chat\Message;
 use LLPhant\Embeddings\EmbeddingGenerator\Ollama\OllamaEmbeddingGenerator;
 use LLPhant\Embeddings\VectorStores\FileSystem\FileSystemVectorStore;
 use LLPhant\OllamaConfig;
@@ -12,11 +15,17 @@ use GuzzleHttp\Client;
 class OllamaChatService
 {
     public ?Client $client = null;
+    public ?OllamaChatServiceModel $model = null;
+
+    public function __construct()
+    {
+        $this->model = new OllamaChatServiceModel;
+    }
 
     public function verifyModelIsActive(string $baseUrl, string $model): bool
     {
         $arrModelsAvailable = [];
-        $baseUrl = trim($baseUrl, "/")."/tags/";
+        $baseUrl = trim($baseUrl, "/") . "/tags/";
 
         $this->createClientGuzzle();
 
@@ -91,5 +100,45 @@ class OllamaChatService
         }
 
         return $this->client;
+    }
+
+    public function getHistoryMessages(string $sgUsuario, ?int $idChat = null)
+    {
+        try {
+            $arrHistory = $this->model->getHistoryMessages($sgUsuario, $idChat);
+
+            $arrHistoryMessages = [];
+
+            foreach ($arrHistory as $arrMessage) {
+                $dsMmessage = "";
+
+                if ($arrMessage["TPROLE"] == "U") {
+                    $dsMmessage = Message::user($arrMessage["DSCONTENT"]);
+                } else if ($arrMessage["TPROLE"] == "A") {
+                    $dsMmessage = Message::assistant($arrMessage["DSCONTENT"]);
+                }
+
+                $arrHistoryMessages[] = $dsMmessage;
+            }
+
+            return array_filter($arrHistoryMessages) ?: [];
+        } catch (\Exception $e) {
+            http_response_code($e->getCode() ?? 500);
+            throw $e;
+        }
+    }
+
+    public function saveNewMessages(array $arrMessages, string $sgUsuario, ?int $idChat = null): int
+    {
+        try {
+            if ($idChat === null) {
+                $idChat = $this->model->criaChat($sgUsuario);
+            }
+
+            return $this->model->saveNewMessages($arrMessages, $sgUsuario, $idChat);
+        } catch (\Exception $e) {
+            http_response_code($e->getCode() ?? 500);
+            throw $e;
+        }
     }
 }
