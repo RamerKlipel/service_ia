@@ -32,7 +32,11 @@ class Router
         try {
             $controller = new $class;
 
-            if (!empty($method) && method_exists($controller, $method)) {
+            if (!empty($method)) {
+                if (!method_exists($controller, $method)) {
+                    http_response_code(404);
+                    throw new \Exception("Metodo nao existente na classe $class");
+                }
                 call_user_func([$controller, $method]);
             }
         } catch (\Exception $e) {

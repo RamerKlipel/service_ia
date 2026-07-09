@@ -13,8 +13,6 @@ class OllamaChatServiceModel extends Model
             return [];
         }
 
-        $where = "";
-
         $arrPdo = [
             ":SGUSUARIO" => $sgUsuario,
             ":IDCHAT" => $idChat,

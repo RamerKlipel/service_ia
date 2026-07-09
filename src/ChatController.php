@@ -102,4 +102,16 @@ class ChatController extends Controller
         }
         $this->service->model->transactionCommit();
     }
+
+    public function getHistory(): void
+    {
+        $arrInput = $this->getJsonInput();
+        $this->requireFields($arrInput, ['IDCHAT', 'SGUSUARIO']);
+
+        $idChat = ($arrInput["IDCHAT"] ?? null);
+        $sgUsuario = $arrInput["SGUSUARIO"];
+
+        $arrMessage = $this->service->getHistoryMessages($sgUsuario, $idChat);
+        jsonResponse($arrMessage ?? []);
+    }
 }
