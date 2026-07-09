@@ -9,7 +9,7 @@ class create_messages extends Migration
 
     public function up(): string
     {
-        $sql = "CREATE TABLE messages (
+        $sql = "CREATE TABLE IF NOT EXISTS messages (
                     IDMESSAGE INT AUTO_INCREMENT PRIMARY KEY,
                     IDCONVERSATION INT NOT NULL,
                     TPROLE ENUM('U', 'A') NOT NULL,

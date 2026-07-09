@@ -2,7 +2,7 @@
 
 namespace App;
 
-require_once '../config/app.php';
+require_once __DIR__.'/../config/app.php';
 
 class Database
 {
