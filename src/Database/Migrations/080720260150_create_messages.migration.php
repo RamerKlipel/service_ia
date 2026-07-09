@@ -10,13 +10,12 @@ class create_messages extends Migration
     public function up(): string
     {
         $sql = "CREATE TABLE messages (
-                    IDMESSAGES INT AUTO_INCREMENT PRIMARY KEY,
+                    IDMESSAGE INT AUTO_INCREMENT PRIMARY KEY,
                     IDCONVERSATION INT NOT NULL,
-                    role ENUM('user', 'assistant') NOT NULL,
+                    TPROLE ENUM('U', 'A') NOT NULL,
                     DSCONTENT TEXT NOT NULL,
-                    DTCREATEAT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     SGUSUARIOINC VARCHAR(100) NOT NULL,
-                    DTCHANGEAT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    DTINCLUSAO DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     CONSTRAINT FK_MESSAGES_CONVERSATION FOREIGN KEY (IDCONVERSATION) REFERENCES conversations (IDCONVERSATION) ON UPDATE CASCADE ON DELETE CASCADE
                 )";
         return $sql;

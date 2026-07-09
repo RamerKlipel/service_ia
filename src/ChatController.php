@@ -48,19 +48,18 @@ class ChatController extends Controller
         $this->createChat();
         // ! log
         $arrInput = $this->getJsonInput();
-        $this->requireFields($arrInput, ['message']);
-        // TODO fazer função para pegar historico de mensagens atual no banco depois
-        // ! exemplo =>  $arrMessage[] = $this->model->getHistoricoMensagensChatAtual($idChat);
+        $this->requireFields($arrInput, ['PROMPT', 'SGUSUARIO']);
 
-        $arrMessage[] = Message::user($arrInput["message"]);
+        $idChat = ($arrInput["IDCHAT"] ?? null);
+        $sgUsuario = $arrInput["SGUSUARIO"];
+
+        $arrMessage = $this->service->getHistoryMessages($sgUsuario, $idChat);
+
+        $arrMessage[] = Message::user($arrInput["PROMPT"]);
+        $arrNewMessages["USER"] = $arrInput["PROMPT"];
         $completeAnswer = "";
 
-        try {
-            $stream = $this->questionAwnsering->answerQuestionFromChat($arrMessage);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            throw $e;
-        }
+        $stream = $this->questionAwnsering->answerQuestionFromChat($arrMessage);
 
         if (ob_get_level()) {
             ob_end_clean();
@@ -87,8 +86,20 @@ class ChatController extends Controller
             throw $e;
         }
 
-        echo "data: [DONE]\n\n";
-        // TODO fazer função para salvar no banco o novo historico depois
-        // ! log
+        $this->service->model->transactionStart();
+        try {
+
+            $arrNewMessages["ASSISTANT"] = $completeAnswer;
+
+            $idChat = $this->service->saveNewMessages($arrNewMessages, $sgUsuario, $idChat);
+            echo "data: " . json_encode(["IDCHAT" => $idChat, "done" => true]) . " \n\n";
+            // ! log
+
+        } catch (\Exception $e) {
+            $this->service->model->transactionRollback();
+            // ! log
+            throw $e;
+        }
+        $this->service->model->transactionCommit();
     }
 }

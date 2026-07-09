@@ -7,16 +7,52 @@ use App\Model;
 
 class OllamaChatServiceModel extends Model
 {
-    public function getMigrationsExecuted(): array
+    public function getHistoryMessages(string $sgUsuario, ?int $idChat = null): array
     {
-        $sql = 'SELECT IDMIGRATION, NMMIGRATION, DAEXECUTED
-                FROM migration';
-        $arrMigrationsExecuted = Database::ExecuteSqlData($sql);
-        $arrMigrations = [];
-        foreach ($arrMigrationsExecuted as $arrDataMigrations) {
-            $arrMigrations[] = $arrDataMigrations['NMMIGRATION'];
+        if ($idChat == null) {
+            return [];
         }
-        return $arrMigrations;
+
+        $where = "";
+
+        $arrPdo = [
+            ":SGUSUARIO" => $sgUsuario,
+            ":IDCHAT" => $idChat,
+        ];
+
+        $sql = "SELECT pa.IDMESSAGE, pa.IDCONVERSATION, pa.TPROLE, pa.DSCONTENT, pa.SGUSUARIOINC, pa.DTINCLUSAO
+                FROM messages pa
+                JOIN conversations c ON c.IDCONVERSATION = pa.IDCONVERSATION
+                WHERE pa.SGUSUARIOINC = :SGUSUARIO AND c.IDCONVERSATION = :IDCHAT";
+        $arrResult = Database::ExecuteSqlData($sql, $arrPdo);
+
+        return $arrResult ?? [];
     }
 
+    public function saveNewMessages(array $arrMessages, string $sgUsuario, ?int $idChat = null): ?int
+    {
+
+        $messageUser = $arrMessages["USER"];
+        $messageAssistant = $arrMessages["ASSISTANT"];
+
+        $arrPdo = [
+            ":DSCONTENTUSER" => $messageUser,
+            ":DSCONTENTASSISTANT" => $messageAssistant,
+            ":SGUSUARIOINC" => $sgUsuario,
+        ];
+
+        $sqlInsertUser = "($idChat, 'U', :DSCONTENTUSER, :SGUSUARIOINC)";
+        $sqlInsertAssistant = ",($idChat, 'A', :DSCONTENTASSISTANT, :SGUSUARIOINC)";
+
+        $sql = "INSERT INTO messages (IDCONVERSATION, TPROLE, DSCONTENT, SGUSUARIOINC)
+                    values $sqlInsertUser $sqlInsertAssistant";
+
+        return Database::ExecuteSql($sql, $arrPdo);
+    }
+
+    public function criaChat(string $sgUsuario): int
+    {
+        $idChat = (int)Database::insert("conversations", ["SGUSUARIOALT" => ":SGUSUARIOALT", "SGUSUARIOINC" => ":SGUSUARIOINC"], [":SGUSUARIOALT" => $sgUsuario, ":SGUSUARIOINC" => $sgUsuario]);
+        return $idChat;
+    }
 }

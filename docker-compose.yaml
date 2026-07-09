@@ -19,6 +19,8 @@ services:
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - APP_ENV=${APP_ENV}
       - DB_PORT=3306
       - OLLAMA_HOST=http://ollama:11434
       - QDRANT_HOST=http://qdrant:6333

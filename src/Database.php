@@ -2,7 +2,7 @@
 
 namespace App;
 
-require_once './config/app.php';
+require_once '../config/app.php';
 
 class Database
 {
@@ -78,7 +78,7 @@ class Database
         return $sql;
     }
 
-    public static function insert(string $strTable, array $arrInsert, array $arrPdo = []): string
+    public static function insert(string $strTable, array $arrInsert, array $arrPdo = []): int|string
     {
         $arrColumns = array_keys($arrInsert);
         $arrValuesPdo = array_values($arrInsert);

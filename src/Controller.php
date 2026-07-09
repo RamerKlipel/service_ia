@@ -14,6 +14,10 @@ abstract class Controller
 
     protected function requireFields(array $arrInput, array $arrFields): void
     {
+        if (getenv("APP_ENV") !== 'development' && !isset($arrFields['X-API-KEY'])) {
+            $arrFields[] = ['X-API-KEY'];
+        }
+
         $arrErroField = [];
         foreach ($arrFields as $field) {
             if (empty($arrInput[$field])) {

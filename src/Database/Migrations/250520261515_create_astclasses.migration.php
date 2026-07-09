@@ -24,7 +24,7 @@ class create_astclasses extends Migration
                     IDUSUARIOINC INT NOT NULL,
                     DTINCLUSAO DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     IDUSUARIOALT INT NOT NULL,
-                    DTALTERACAO DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    DTALTERACAO DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 )";
         return $sql;
     }

@@ -11,10 +11,10 @@ class create_conversations extends Migration
     {
         $sql = "CREATE TABLE conversations (
                     IDCONVERSATION INT AUTO_INCREMENT PRIMARY KEY,
-                    SGUSUARIO VARCHAR(100) NOT NULL,
-                    DTCREATEAT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    SGUSUARIOALT VARCHAR(100) NOT NULL,
+                    DTALTERACAO DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     SGUSUARIOINC VARCHAR(100) NOT NULL,
-                    DTCHANGEAT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    DTINCLUSAO DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )";
         return $sql;
     }
