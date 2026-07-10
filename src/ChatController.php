@@ -11,13 +11,14 @@ use LLPhant\Query\SemanticSearch\QuestionAnswering;
 class ChatController extends Controller
 {
     public array $messages;
-    public string $urlOllama = "http://ollama:11434/api/";
+    public string $urlOllama;
     public ?QuestionAnswering $questionAwnsering = null;
     protected ?OllamaChatService $service = null;
 
     public function __construct()
     {
         $this->service = new OllamaChatService;
+        $this->urlOllama = getenv("OLLAMA_HOST") . "/api/";
     }
 
     public function health(): void

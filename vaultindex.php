@@ -9,7 +9,7 @@ use LLPhant\OllamaConfig;
 
 $embeddingConfig = new OllamaConfig();
 $embeddingConfig->model = 'nomic-embed-text';
-$embeddingConfig->url = 'http://ollama:11434/api/';
+$embeddingConfig->url = getenv("OLLAMA_HOST") . "/api/";
 
 $fileReader = new FileDataReader(
     'src/utils/functions.php', extensions: ['php']

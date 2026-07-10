@@ -18,12 +18,13 @@ class create_astclasse extends Migration
                     DSINTERFACES TEXT NULL,
                     DSFILEPATH VARCHAR(500) NOT NULL,
                     DSHASH CHAR(64) NOT NULL,
+                    DSCODE MEDIUMTEXT NULL,
                     DSDESCRIPTION TEXT NULL,
                     NMSISTEMA VARCHAR(100) NOT NULL,
                     TPARQUIVO ENUM('controller','model','view','base') NOT NULL,
                     NMEXTENDS VARCHAR(100),
                     NMARQUIVO VARCHAR(255),
-                    JSONMETODOS JSON,
+                    JSONMETODOS JSON NULL,
                     DSCLASSELLM TEXT,
                     FLREVISADO ENUM('S','N') DEFAULT 'N',
                     FLENVIADOGRAPHRAG ENUM('S','N') DEFAULT 'N',
@@ -31,7 +32,8 @@ class create_astclasse extends Migration
                     IDUSUARIOINC INT NOT NULL,
                     DTINCLUSAO DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     IDUSUARIOALT INT NOT NULL,
-                    DTALTERACAO DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                    DTALTERACAO DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    UNIQUE KEY uk_class (NMSISTEMA, NMNAMESPACE, NMCLASS)
                 )";
         return $sql;
     }
