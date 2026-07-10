@@ -21,6 +21,7 @@ class create_astfunction extends Migration
                     DSHASH CHAR(64) NOT NULL,
                     DSCODE MEDIUMTEXT NULL,
                     DSDESCRIPTION TEXT NULL,
+                    DSMODELOLLM VARCHAR(100) NULL,
                     FLREVISADO ENUM ('S', 'N') DEFAULT 'N',
                     FLENVIADOGRAPHRAG ENUM ('S', 'N') DEFAULT 'N',
                     FLENVIADOQDRANT ENUM ('S', 'N') DEFAULT 'N',
