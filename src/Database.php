@@ -111,7 +111,17 @@ class Database
             http_response_code(500);
             return "For safety reasons, you shouldn't perform a update without a where clause";
         }
-        $strUpdate = implode(', ', $arrUpdate);
+
+        if (empty($arrUpdate)) {
+            return '';
+        }
+
+        $arrSets = [];
+
+        foreach($arrUpdate as $nmColumn => $arrValuePdo) {
+            $arrSets[] = "$nmColumn = $arrValuePdo";
+        }
+        $strUpdate = implode(', ', $arrSets);
         $sql = "UPDATE $strTable
                 SET $strUpdate
                 WHERE $where";
